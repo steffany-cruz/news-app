@@ -38,7 +38,7 @@ const Card: FC<INews> = ({
         <p className="text-lg font-bold text-cyan-700">{title}</p>
         <p className="text-gray-700 font-medium">{source?.name}</p>
         <p className="mt-2 text-gray-700 line-clamp-2">{description}</p>
-        <p className="mt-3 mb-2 ml-auto text-gray-500 text-sm">
+        <p className="mt-5 mb-2 ml-auto text-gray-500 text-sm">
           {formattedDate}
         </p>
         <button
