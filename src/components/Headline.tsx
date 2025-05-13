@@ -36,8 +36,10 @@ const Headline: FC<INews> = ({
         <h1 className="text-lg font-bold text-gray-900 mb-2">
           <span className="bg-yellow-500 rounded-sm px-5">Destaque</span>
         </h1>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{title} </h1>
-        <p className="text-xl text-gray-700 mb-4">{description}</p>
+        <h1 className="text-2xl xl:text-3xl font-bold text-gray-900 mb-2">
+          {title}
+        </h1>
+        <p className="text-lg xl:text-xl text-gray-700 mb-4">{description}</p>
         <p className="text-md text-gray-500 font-medium mt-20">
           {source?.name} - {formattedDate}
         </p>
