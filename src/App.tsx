@@ -12,6 +12,7 @@ import { NewsContext, NewsProvider } from "./context/NewsContext";
 import { INews } from "./types/news";
 import { getNews, getSources } from "./service/news";
 import Dropdown from "./components/Dropdown";
+import Headline from "./components/Headline";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ function NewsApp() {
     setCurrentPage,
   } = useContext(NewsContext);
   const [totalPages, setTotalPages] = useState(10);
+  const [headline, setHeadline] = useState<INews>();
   const [error, setError] = useState();
 
   useLayoutEffect(() => {
@@ -43,12 +45,18 @@ function NewsApp() {
         const { data } = await getSources();
         setSources(data.sources);
         setSelectedSource(data.sources[1] || data.sources[0]);
-      } catch (error) {
+      } catch (error: any) {
         setError(error.response?.data?.message || error.message);
       }
     }
 
     fetchSources();
+
+    return () => {
+      setHeadline(undefined);
+      setTotalPages(0);
+      setCurrentPage(1);
+    };
   }, []);
 
   const { data, isLoading, isFetching, isError } = useQuery({
@@ -57,6 +65,10 @@ function NewsApp() {
     queryFn: async () => {
       const { data } = await getNews(selectedSource?.id, currentPage);
       setTotalPages(Math.floor(data.totalResults / 12));
+      if (currentPage === 1) {
+        setHeadline(data.articles[0]);
+        delete data.articles[0];
+      }
       return data.articles;
     },
   });
@@ -65,20 +77,11 @@ function NewsApp() {
     <>
       <Header />
       <div className="p-4 h-full">
-        <div className="flex items-center">
-          <Fragment>
-            <div className="border-2 border-cyan-900 mx-4 h-6"></div>
+        <div className="lg:flex items-center">
+          <div className="flex items-center mb-5">
+            <div className="border-2 border-cyan-900 mr-3 h-6"></div>
             <p className="text-lg font-medium">Últimas notícias</p>
-          </Fragment>
-          {/* <Dropdown
-            selected={selectedSource}
-            onSelect={setSelectedSource}
-            options={[
-              { id: "aaa", name: "aaa" },
-              { id: "bbb", name: "bbb" },
-              { id: "ccc", name: "ccc" },
-            ]}
-          /> */}
+          </div>
           <Dropdown
             selected={selectedSource}
             onSelect={setSelectedSource}
@@ -107,6 +110,16 @@ function NewsApp() {
             </p>
           </div>
         )}
+        {headline && !(error || isError) && !(isLoading || isFetching) && (
+          <Headline
+            title={headline?.title}
+            description={headline?.description}
+            urlToImage={headline?.urlToImage}
+            publishedAt={headline?.publishedAt}
+            url={headline?.url}
+            source={headline?.source}
+          />
+        )}
         <div className="pt-5 grid sm:grid-cols-1 lg:grid-cols-2 xxl:grid-cols-3 gap-5 w-full">
           {!(isLoading || isFetching) &&
             data?.map((news: INews) => (
@@ -120,29 +133,14 @@ function NewsApp() {
                 source={news.source}
               />
             ))}
-          {/* {Array.from({ length: 12 }).map((_, index) => (
-            <div key={index}>
-              <Card
-                title="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-                description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                urlToImage={
-                  index % 2 === 0
-                    ? "https://s2-valor.glbimg.com/MnpLEBw3DuHLBA95IA--PY-TlIM=/1200x/smart/filters:cover():strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2025/b/v/2V7mxeRkGvAwNepi9PPg/foto05esp-101-shannon-a18.jpg"
-                    : "https://media.zenfs.com/en/coindesk_75/f96b0ae84958f9e2bfc7699e720a9f0e"
-                }
-                publishedAt="2023-10-01T12:00:00Z"
-                url="https://example.com"
-              />
-            </div>
-          ))} */}
         </div>
-        {/* {data?.length > 0 && ( */}
-        <Pagination
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          totalPages={totalPages}
-        />
-        {/* )} */}
+        {data?.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+            totalPages={totalPages}
+          />
+        )}
       </div>
     </>
   );

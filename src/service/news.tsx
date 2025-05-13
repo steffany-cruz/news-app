@@ -10,9 +10,12 @@ export async function getNews(
   language = "pt",
   pageSize = 12
 ) {
+  const from = new Date();
+  from.setDate(from.getDate() - 1);
+  const formattedFrom = from.toISOString().split("T")[0];
   return api.get(
     `/everything?${
       selectedSource ? `sources=${selectedSource}&` : ""
-    }language=${language}&pageSize=${pageSize}&page=${page}`
+    }language=${language}&pageSize=${pageSize}&page=${page}&from=${formattedFrom}&to=${formattedFrom}`
   );
 }

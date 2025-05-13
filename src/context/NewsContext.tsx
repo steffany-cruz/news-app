@@ -17,7 +17,9 @@ const NewsContext = createContext<{
   setCurrentPage: () => {},
 });
 
-const NewsProvider = ({ children }) => {
+const NewsProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [selectedSource, setSelectedSource] = useState<ISource>();
   const [sources, setSources] = useState<ISource[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
